@@ -83,10 +83,16 @@ $options = [
                 </ul>
             </li>
             <li>
-                <button id="toggle-insert-form"></button>
+                <button id="toggle-insert-form">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
+                    <span>INSERT</span>
+                </button>
             </li>
             <li>
-                <button id="toggle-edit-form"></button>
+                <button id="toggle-edit-form">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>
+                    <span>EDIT</span>
+                </button>
             </li>
             <!--Toggle Mode-->
             <li>
@@ -97,10 +103,10 @@ $options = [
             </li>
         </ul>
     </nav>
-    <main>
+    <main style="position: relative;">
         <div id="container"></div>
-        <div id="insert-form-container" style="display: none;"></div> <!-- Hidden by default -->
-        <div id="edit-form-container" style="display: none;"></div> <!-- Edit form toggle -->
+        <div id="insert-form-container" class="form-container" style="display: none;"></div> <!-- Hidden by default -->
+        <div id="edit-form-container" class="form-container" style="display: none;"></div> <!-- Edit form toggle -->
     </main>
     <script>
 let currentTable = '';
@@ -114,12 +120,12 @@ $(document).ready(function() {
         });
         $('#toggle-insert-form').html(`
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
-        <span>INSERT INTO ${currentTable}</span>
+        <span>INSERT ${currentTable}</span>
         `);
          // Show Edit button
         $('#toggle-edit-form').html(`
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>
-        <span>Edit ${currentTable}</span>
+        <span>EDIT ${currentTable}</span>
         `);
         // Load insert form
         $.post('get_insert_form.php', { table: currentTable }, function (response) {
@@ -130,13 +136,20 @@ $(document).ready(function() {
             $('#edit-form-container').html(response).hide();
         });
     });
-    // Toggle insert form visibility
-    $(document).on('click', '#toggle-insert-form', function () {
-        $('#insert-form-container').slideToggle(); // Smooth toggle
-    });
-    // Toggle edit form
-    $(document).on('click', '#toggle-edit-form', function () {
-        $('#edit-form-container').slideToggle();
+    function toggleForm(formIdToShow) {
+        $('.form-container').not(`#${formIdToShow}`).slideUp(); // Hide others
+
+        const target = $(`#${formIdToShow}`);
+        target.slideToggle(); // Toggle selected form
+        }
+
+    $(document).on('click', '#toggle-insert-form', () => toggleForm('insert-form-container'));
+    $(document).on('click', '#toggle-edit-form', () => toggleForm('edit-form-container'));
+    $(document).on('click', '#toggle-delete-form', () => toggleForm('delete-form-container'));
+
+    // Optional: hide all forms on table switch
+    $(document).on('click', '.table-link', () => {
+        $('.form-container').slideUp();
     });
      // Handle edit form submission
     $(document).on('submit', '#edit-form', function (e) {

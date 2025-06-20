@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'])) {
         $stmt = $pdo->query("DESCRIBE `$table`");
         $columns = $stmt->fetchAll();
 
-        echo "<h3>Insert into <strong>$table</strong></h3>";
+        echo "<h3>INSERT INTO <strong>$table</strong></h3>";
         echo "<form id='insert-form'>";
         echo "<input type='hidden' name='table' value='" . htmlspecialchars($table) . "'>";
 
@@ -35,17 +35,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'])) {
             $required = ($col['Null'] === 'NO' && $col['Extra'] !== 'auto_increment') ? 'required' : '';
             if ($col['Extra'] === 'auto_increment') continue;
 
-            echo "<label>$field: ";
+            echo "<p><label><span>$field: </span>";
             if (str_contains($type, 'int')) {
                 echo "<input type='number' name='$field' $required>";
-            } elseif (str_contains($type, 'date')) {
-                echo "<input type='date' name='$field' $required>";
-            } elseif (str_contains($type, 'text') || str_contains($type, 'varchar')) {
-                echo "<input type='text' name='$field' $required>";
             } else {
                 echo "<input type='text' name='$field' $required>";
             }
-            echo "</label><br>";
+            echo "</label></p>";
         }
 
         echo "<button type='submit'>Insert</button>";

@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'])) {
         echo "No data to edit.";
         exit;
     }
-
+    echo "<h3>EDIT <strong>$table</strong></h3>";
     echo "<form id='edit-form'>";
     echo "<input type='hidden' name='table' value='" . htmlspecialchars($table) . "'>";
 
@@ -37,15 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'])) {
             $extraAttr = "id='primary-key' data-field='$field'";
         }
 
-        echo "<label>$field: ";
+        echo "<p><label>$field: ";
         if (str_contains($type, 'int')) {
             echo "<input type='number' name='$field' placeholder='$placeholder' class='edit-field' $readonly $extraAttr>";
-        } elseif (str_contains($type, 'date')) {
-            echo "<input type='date' name='$field' placeholder='$placeholder' class='edit-field' $readonly $extraAttr>";
         } else {
             echo "<input type='text' name='$field' placeholder='$placeholder' class='edit-field' $readonly $extraAttr>";
         }
-        echo "</label><br>";
+        echo "</label></p>";
     }
 
     echo "<button type='submit'>Update</button>";
