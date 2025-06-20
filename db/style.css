@@ -1,0 +1,292 @@
+/*import Poppins font*/
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+/*dark mode*/
+:root.dark{
+  --base-clr: #11121a;
+  --line-clr: #42434a;
+  --hover-clr: #222533;
+  --text-clr: #e6e6ef;
+  --accent-clr: #5e63ff;
+  --secondary-text-clr: #b0b3c1;
+  --secondary-table-clr: #14151f;
+}
+/*light mode*/
+:root:not(.dark){
+  --base-clr: #fafafa;
+  --line-clr: #2a2a2b;
+  --hover-clr: #d3d3d3;
+  --text-clr: #010203;
+  --accent-clr: #5e63ff;
+  --secondary-text-clr: #14151f;
+  --secondary-table-clr: #e6e6e6;
+}
+/*no preset margin/padding*/
+*{
+  margin: 0;
+  padding: 0;
+}
+/*font stuffs*/
+html{
+  font-family: Poppins, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.5rem;
+}
+body{
+  min-height: 100dvh;
+  min-height: 100vh;
+  background-color: var(--base-clr);
+  color: var(--text-clr);
+  display: grid;
+  /*auto for sidebar, 1fr for <main>*/
+  grid-template-columns: auto 1fr;
+}
+#sidebar{
+  box-sizing: border-box;
+  /*covers top-bottom*/
+  height: 100vh;
+  width: 300px;
+  padding: 5px 1em;
+  background-color: var(--base-clr);
+  border-right: 1px solid var(--line-clr);
+  /*sticks when scrolled*/
+  position: sticky;
+  top: 0;
+  align-self: start;
+  /*transition when open/closing*/
+  transition: 300ms ease-in-out;
+  overflow: hidden;
+  text-wrap: nowrap;
+}
+/*sidebar when closed*/
+#sidebar.close{
+  padding: 5px;
+  width: 60px;
+}
+/*sidebar icons*/
+#sidebar svg{
+  flex-shrink: 0;
+  fill: var(--text-clr);
+}
+#sidebar img{
+  width: 50px;
+}
+/*to make sure links/dropdown strecth all the way*/
+#sidebar a span, #sidebar .dropdown-btn span, #toggle-mode-btn span, #select-submit span, #select-all span{
+  flex-grow: 1;
+}
+/*links/dropdown hover*/
+#sidebar a:hover, #sidebar .dropdown-btn:hover, #toggle-btn:hover, #toggle-mode-btn:hover, #select-submit:hover, #select-all:hover{
+  background-color: var(--hover-clr);
+}
+/*dropdown, -default closed*/
+#sidebar .sub-menu{
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: 300ms ease-in-out;
+
+  > div {
+    overflow: hidden;
+  }
+}
+/*dropdowns when showed*/
+#sidebar .sub-menu.show{
+  grid-template-rows: 1fr;
+}
+/*dropdown up/down arrow transition*/
+.dropdown-btn svg{
+  transition: 200ms ease-in-out;
+}
+/*rotate arrow svgs*/
+.rotate svg:last-child{
+  rotate: 180deg;
+}
+/*consistency reasons?*/
+.sidebar .sub-menu a, .sidebar .sub-menu {
+  padding-left: 2em;
+}
+/*close sidebar btn*/
+#toggle-btn{
+  margin-left: auto;
+  padding: 1em;
+  border: none;
+  border-radius: .5em;
+  background: none;
+  cursor: pointer;
+
+  /*transtition*/
+  svg{
+    transition: rotate 150ms ease;
+  }
+}
+/*remove the dots on list*/
+#sidebar ul{
+  list-style: none;
+}
+/*main logo of links/dropdowns*/
+#sidebar > ul > li:first-child{
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+  .logo{
+    font-weight: 600;
+  }
+}
+/*bolds the active page on sidebar*/
+#sidebar ul li.active a{
+  color: var(--accent-clr);
+  svg{
+    fill: var(--accent-clr);
+  }
+}
+/*links/dropdown on sidebar*/
+#sidebar a, #select div, #sidebar .dropdown-btn, #sidebar .logo, #sidebar #toggle-mode-btn, #select-submit, #select-all{
+  border-radius: .5em;
+  padding: .85em;
+  text-decoration: none;
+  color: var(--text-clr);
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+/*dropdown button --> same appearance as links*/
+.dropdown-btn, #select-submit, #select-all{
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+/* toggle mode */
+#toggle-mode-btn{
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+}
+/*main content*/
+main{
+  /*main p*/
+  p{
+  color: var(--secondary-text-clr);
+  margin-top: 5px;
+  margin-bottom: 15px;
+  }
+}
+#container {
+  margin: 0 min(30px, 7%) 20px min(30px, 7%);
+}
+#table {
+  border: 2px solid var(--line-clr);
+  border-collapse: collapse;
+  tr#table-header {
+    background-color: var(--accent-clr);
+    th {
+      color: var(--text-clr);
+    }
+  }
+  tr:nth-child(even) {
+    background-color: var(--base-clr);
+  }
+
+  tr:nth-child(odd) {
+    background-color: var(--secondary-table-clr);
+  }
+  td, th {
+    padding: .5em;
+    border: 2px solid var(--line-clr);
+    color: var(--secondary-text-clr);
+  }
+}
+#container-header{
+  height: 100px;
+  padding: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+/*for devices with witdh lower than 800px*/
+@media(max-width: 800px){
+  /*make the page 1 coloumn <-- no sidebar in left*/
+  body{
+    grid-column: 1fr;
+  }
+  /*adjust padding*/
+  main{
+    padding: 2em 1em 60px 1em;
+    width: 100vw;
+  }
+  /* remove border on .container*/
+  .container{
+    border: none;
+    padding: 0;
+  }
+  /*move sidebar to bottom*/
+  #sidebar{
+    height: 45px;
+    width: 100%;
+    padding: 0 fit-content ;
+    border-right: none;
+    justify-self: center;
+    border-top: 1px solid var(--line-clr);
+    padding: 0;
+    position: fixed;
+    top: unset;
+    bottom: 0;
+  /*sidebar links/dropdown flow horizontally*/
+  > ul {
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(6,1fr);
+      grid-auto-flow: column;
+      align-items: center;
+      overflow-x: scroll;
+      
+    }
+    /*consistency*/
+    ul li{
+      height: 100%;
+    }
+    /*sidebar links/dropdown become squares*/
+    ul a, ul .dropdown-btn, ul #toggle-mode-btn{
+      min-width: 45px;
+      height: 45px;
+      padding: 0;
+      border-radius: 0;
+      justify-content: center;
+    }
+    /*hide unecessary text, like title's and svg btn's that aren't needed*/
+    ul li span, ul li:first-child, .dropdown-btn svg:last-child{
+      display: none;
+    }
+    /*drop-downs become drop-ups*/
+    ul li .sub-menu.show{
+      position: fixed;
+      bottom: 45px;
+      left: 0;
+      box-sizing: border-box;
+      height: 45px;
+      width: 100%;
+      background-color: var(--hover-clr);
+      border-top: 1px solid var(--line-clr);
+      display: flex;
+      justify-content: center;
+      /*if theres too much dropdown items, might not be used*/
+      > div{
+        overflow-x: auto;
+      }
+      /*make li behaves like span*/
+      li{
+        display: inline-flex;
+      }
+      /* dropdown links */
+      a{
+        box-sizing: border-box;
+        padding: 1em;
+        width: auto;
+        justify-content: center;
+      }
+    }
+  }
+}
