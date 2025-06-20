@@ -26,11 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'])) {
         $stmt = $pdo->query("DESCRIBE `$table`");
         $columns = $stmt->fetchAll();
 
-        echo "<li><label><input type='checkbox' id='select-all-columns'> <strong>Select All</strong></label></li>";
+        echo "<li><label><input type='checkbox' id='select-all-columns' checked> <strong>Select All</strong></label></li>";
 
         foreach ($columns as $col) {
             $colName = htmlspecialchars($col['Field']);
-            echo "<label><input type='checkbox' class='column-checkbox' value='$colName'> $colName</label><br>";
+            echo "<li><label><input type='checkbox' class='column-checkbox' value='$colName' checked> $colName</label><li>";
         }
 
     } catch (PDOException $e) {

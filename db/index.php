@@ -39,7 +39,7 @@ $options = [
             <li>
                 <button onclick=toggleSubMenu(this) class="dropdown-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm240-240H200v160h240v-160Zm80 0v160h240v-160H520Zm-80-80v-160H200v160h240Zm80 0h240v-160H520v160ZM200-680h560v-80H200v80Z"/></svg>
-                    <span>TABLES</span>
+                    <span>MASTER TABLES</span>
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
                 </button>
                 <ul class="sub-menu">
@@ -56,6 +56,12 @@ $options = [
                         <li><a href="#" class="table-link" data-table="transactions">transactions</a></li>
                     </div>
                 </ul>
+            </li>
+            <li>
+                <a href="#" class="table-link" data-table="Transactions">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M120-80v-800l60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60 60 60 60-60v800l-60-60-60 60-60-60-60 60-60-60-60 60-60-60-60 60-60-60-60 60-60-60-60 60Zm120-200h480v-80H240v80Zm0-160h480v-80H240v80Zm0-160h480v-80H240v80Zm-40 404h560v-568H200v568Zm0-568v568-568Z"/></svg>
+                    <span>Transactions</span>
+                </a>
             </li>
             <li>
                 <button onclick=toggleSubMenu(this) class="dropdown-btn">
@@ -77,7 +83,10 @@ $options = [
                 </ul>
             </li>
             <li>
-                <button id="toggle-insert-form" id="toggle-mode-btn"></button>
+                <button id="toggle-insert-form"></button>
+            </li>
+            <li>
+                <button id="toggle-edit-form"></button>
             </li>
             <!--Toggle Mode-->
             <li>
@@ -91,6 +100,7 @@ $options = [
     <main>
         <div id="container"></div>
         <div id="insert-form-container" style="display: none;"></div> <!-- Hidden by default -->
+        <div id="edit-form-container" style="display: none;"></div> <!-- Edit form toggle -->
     </main>
     <script>
 let currentTable = '';
@@ -106,16 +116,44 @@ $(document).ready(function() {
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
         <span>INSERT INTO ${currentTable}</span>
         `);
+         // Show Edit button
+        $('#toggle-edit-form').html(`
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z"/></svg>
+        <span>Edit ${currentTable}</span>
+        `);
         // Load insert form
         $.post('get_insert_form.php', { table: currentTable }, function (response) {
             $('#insert-form-container').html(response);
+        });
+        // Load Edit form
+        $.post('get_edit_form.php', { table: currentTable }, function (response) {
+            $('#edit-form-container').html(response).hide();
         });
     });
     // Toggle insert form visibility
     $(document).on('click', '#toggle-insert-form', function () {
         $('#insert-form-container').slideToggle(); // Smooth toggle
     });
-
+    // Toggle edit form
+    $(document).on('click', '#toggle-edit-form', function () {
+        $('#edit-form-container').slideToggle();
+    });
+     // Handle edit form submission
+    $(document).on('submit', '#edit-form', function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: 'update_row.php',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function (response) {
+                alert(response);
+                $('.table-link[data-table="' + currentTable + '"]').trigger('click');
+            },
+            error: function (xhr) {
+                alert('Update failed: ' + xhr.responseText);
+            }
+        });
+    });
     // Delegate form submission
     $(document).on('submit', '#insert-form', function (e) {
         e.preventDefault();
@@ -178,6 +216,36 @@ $(document).ready(function() {
             },
             error: function (xhr, status, error) {
                 $('#container').html("Error: " + error);
+            }
+        });
+    });
+    $(document).on('input', '#primary-key', function () {
+        const pkField = $(this).data('field');
+        const pkValue = $(this).val();
+        const table = $('input[name="table"]').val();
+
+        if (!pkValue) return;
+
+        $.post('get_row_data.php', {
+            table: table,
+            pk: pkField,
+            pk_value: pkValue
+        }, function (data) {
+            try {
+                const row = JSON.parse(data);
+
+                // Update placeholders of each field
+                $('.edit-field').each(function () {
+                    const field = $(this).attr('name');
+                    if (row.hasOwnProperty(field)) {
+                        $(this).attr('placeholder', row[field]);
+                    } else {
+                        $(this).attr('placeholder', '');
+                    }
+                });
+
+            } catch (e) {
+                console.error("Invalid JSON:", e);
             }
         });
     });

@@ -42,7 +42,7 @@ body{
 #sidebar{
   box-sizing: border-box;
   /*covers top-bottom*/
-  height: 100vh;
+  min-height: 100vh;
   width: 300px;
   padding: 5px 1em;
   background-color: var(--base-clr);
@@ -138,7 +138,7 @@ body{
   }
 }
 /*links/dropdown on sidebar*/
-#sidebar a, #select div, #sidebar .dropdown-btn, #sidebar .logo, #sidebar #toggle-mode-btn, #select-submit, #select-all{
+#sidebar a, #select div, #sidebar button:not(#toggle-btn), #sidebar .logo, #select-all, #sidebar label{
   border-radius: .5em;
   padding: .85em;
   text-decoration: none;
@@ -148,16 +148,7 @@ body{
   gap: 1em;
 }
 /*dropdown button --> same appearance as links*/
-.dropdown-btn, #select-submit, #select-all{
-  width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
-  font: inherit;
-  cursor: pointer;
-}
-/* toggle mode */
-#toggle-mode-btn{
+#sidebar button:not(#toggle-btn), #select-submit, #select-all{
   width: 100%;
   text-align: left;
   background: none;

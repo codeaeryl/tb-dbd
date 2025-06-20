@@ -3,6 +3,27 @@
     $table = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['table']);
     $columns = '*';
 
+    $useJoin = false;
+    $customQuery = "";
+
+    if ($table === 'Transactions') {
+        $useJoin = true;
+        $customQuery = "
+            SELECT 
+                t.transaction_id,
+                p.username,
+                i.item_name,
+                t.amount,
+                t.transaction_date
+            FROM 
+                transactions t
+            JOIN 
+                players p ON t.player_id = p.player_id
+            JOIN 
+                items i ON t.item_id = i.item_id
+        ";
+    }
+
     if (isset($_POST['columns']) && is_array($_POST['columns'])) {
         $sanitizedColumns = array_map(function($col) {
             return preg_replace('/[^a-zA-Z0-9_]/', '', $col);
@@ -26,7 +47,9 @@
     try {
         $pdo = new PDO($dsn, $user, $pass, $options);
 
-        $stmt = $pdo->query("SELECT $columns FROM `$table`");
+        $stmt = $useJoin
+            ? $pdo->query($customQuery)
+            : $pdo->query("SELECT $columns FROM `$table`");
 
         $data = $stmt->fetchAll();
 
@@ -34,6 +57,7 @@
             echo "No data found.";
             exit;
         }
+        
 
         // Extract all unique keys
         $allKeys = [];
