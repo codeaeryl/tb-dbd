@@ -70,6 +70,12 @@ $options = [
                 </button>
             </li>
             <li>
+                <button id="toggle-order-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M120-240v-80h240v80H120Zm0-200v-80h480v80H120Zm0-200v-80h720v80H120Z"/></svg>
+                    <span>ASC</span>
+                </button>
+            </li>
+            <li>
                 <button id="toggle-insert-form">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
                     <span>INSERT</span>
@@ -228,6 +234,27 @@ $(document).ready(function() {
             }
         });
     });
+    let currentOrder = 'asc';
+
+    $('#toggle-order-btn').on('click', function () {
+        currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+        $(this).html(`
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M120-240v-80h240v80H120Zm0-200v-80h480v80H120Zm0-200v-80h720v80H120Z"/></svg>
+        <span>${currentOrder.toUpperCase()}</span>
+        `);
+        
+        $.ajax({
+            type: 'POST',
+            url: 'load_table.php',
+            data: { table: currentTable, order: currentOrder },
+            success: function (response) {
+                $('#container').html(response);
+            },
+            error: function () {
+                $('#container').html("Error loading table.");
+            }
+        });
+    });
     $(document).on('input', '#primary-key', function () {
         const pkField = $(this).data('field');
         const pkValue = $(this).val();
@@ -252,7 +279,6 @@ $(document).ready(function() {
                         $(this).val('');
                     }
                 });
-
 
             } catch (e) {
                 console.error("Invalid JSON:", e);

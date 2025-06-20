@@ -2,6 +2,9 @@
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'])) {
     $table = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['table']);
     $columns = '*';
+    $order = strtolower($_POST['order'] ?? 'asc');
+    $order = in_array($order, ['asc', 'desc']) ? $order : 'asc';
+
 
     $useJoin = false;
     $customQuery = "";
@@ -49,10 +52,20 @@
     try {
         $pdo = new PDO($dsn, $user, $pass, $options);
 
-        $stmt = $useJoin
-            ? $pdo->query($customQuery)
-            : $pdo->query("SELECT $columns FROM `$table`");
+        if ($useJoin) {
+            $query = $customQuery . " ORDER BY t.transaction_id $order";
+        } else {
+            $pkStmt = $pdo->query("SHOW KEYS FROM `$table` WHERE Key_name = 'PRIMARY'");
+            $pkRow = $pkStmt->fetch();
+            $pk = $pkRow['Column_name'] ?? null;
 
+            $query = "SELECT $columns FROM `$table`";
+            if ($pk) {
+                $query .= " ORDER BY `$pk` $order";
+            }
+        }
+
+        $stmt = $pdo->query($query);
         $data = $stmt->fetchAll();
 
         if (empty($data)) {
