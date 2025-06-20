@@ -247,12 +247,13 @@ $(document).ready(function() {
             try {
                 const row = JSON.parse(data);
 
+                // Update placeholders of each field
                 $('.edit-field').each(function () {
                     const field = $(this).attr('name');
                     if (row.hasOwnProperty(field)) {
-                        $(this).val(row[field]);
+                        $(this).attr('placeholder', row[field]);
                     } else {
-                        $(this).val('');
+                        $(this).attr('placeholder', '');
                     }
                 });
 
