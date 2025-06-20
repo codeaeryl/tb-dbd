@@ -21,17 +21,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'])) {
     $pk_value = $_POST[$pk];
     unset($_POST[$pk]);
 
-    $columns = array_keys($_POST);
-    $assignments = implode(', ', array_map(fn($col) => "`$col` = :$col", $columns));
-    $sql = "UPDATE `$table` SET $assignments WHERE `$pk` = :pk";
+    $filtered = [];
+    foreach ($_POST as $key => $value) {
+        if ($key === $pk) continue; // Always keep PK
+        if (trim($value) !== '') {
+            $filtered[$key] = $value;
+        }
+        }
 
+    if (empty($filtered)) {
+        exit("No fields to update.");
+    }
+
+    $assignments = implode(', ', array_map(fn($col) => "`$col` = :$col", array_keys($filtered)));
+    $sql = "UPDATE `$table` SET $assignments WHERE `$pk` = :pk";
+        
     $stmt = $pdo->prepare($sql);
-    foreach ($_POST as $col => $val) {
+
+    foreach ($filtered as $col => $val) {
         $stmt->bindValue(":$col", $val);
     }
     $stmt->bindValue(":pk", $pk_value);
 
     $stmt->execute();
-    echo "Row updated successfully.";
 }
 ?>
