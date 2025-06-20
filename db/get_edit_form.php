@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'])) {
     foreach ($columns as $col) {
         $field = $col['Field'];
         $type = strtolower($col['Type']);
-        $placeholder = htmlspecialchars($row[$field]);
+        $value = htmlspecialchars($row[$field]);
         $readonly = ''; // allow editing of primary key
         $extraAttr = '';
 
@@ -39,9 +39,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'])) {
 
         echo "<p><label>$field: ";
         if (str_contains($type, 'int')) {
-            echo "<input type='number' name='$field' placeholder='$placeholder' class='edit-field' $readonly $extraAttr>";
+            echo "<input type='number' name='$field' class='edit-field' value='$value' $readonly $extraAttr>";
         } else {
-            echo "<input type='text' name='$field' placeholder='$placeholder' class='edit-field' $readonly $extraAttr>";
+            echo "<input type='text' name='$field' class='edit-field' value='$value' $readonly $extraAttr>";
         }
         echo "</label></p>";
     }
