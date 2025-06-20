@@ -232,35 +232,37 @@ $(document).ready(function() {
             }
         });
     });
-    function loadEditForm(table, pk, pkValue = 1) {
-    $.post('edit_form.php', {
-        table: table,
-        pk: pk,
-        pk_value: pkValue
-    }, function (html) {
-        $('#edit-form-container').html(html);
-    });
-    }
-
-    // Call this after table is selected:
-    loadEditForm(currentTable, '', 1); // Default to PK=1
-
-    // Listen for pk input changes:
-    $(document).on('input', '#edit-pk-input', function () {
+    $(document).on('input', '#primary-key', function () {
+        const pkField = $(this).data('field');
         const pkValue = $(this).val();
         const table = $('input[name="table"]').val();
-        const pk = $('input[name="pk"]').val();
 
-        if (pkValue) {
-            $.post('edit_form.php', {
-                table: table,
-                pk: pk,
-                pk_value: pkValue
-            }, function (html) {
-                $('#edit-form-container').html(html);
-            });
-        }
+        if (!pkValue) return;
+
+        $.post('get_row_data.php', {
+            table: table,
+            pk: pkField,
+            pk_value: pkValue
+        }, function (data) {
+            try {
+                const row = JSON.parse(data);
+
+                // Update placeholders of each field
+                $('.edit-field').each(function () {
+                    const field = $(this).attr('name');
+                    if (row.hasOwnProperty(field)) {
+                        $(this).attr('placeholder', row[field]);
+                    } else {
+                        $(this).attr('placeholder', '');
+                    }
+                });
+
+            } catch (e) {
+                console.error("Invalid JSON:", e);
+            }
+        });
     });
+});
     </script>
 </body>
 </html>
