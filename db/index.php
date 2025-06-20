@@ -37,7 +37,7 @@ $options = [
                 </button>
             </li>
             <li>
-                <button onclick=toggleSubMenu(this) class="dropdown-btn">
+                <button onclick=toggleSubMenu(this) class="dropdown-btn" id="master">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm240-240H200v160h240v-160Zm80 0v160h240v-160H520Zm-80-80v-160H200v160h240Zm80 0h240v-160H520v160ZM200-680h560v-80H200v80Z"/></svg>
                     <span>MASTER TABLES</span>
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
@@ -64,23 +64,10 @@ $options = [
                 </a>
             </li>
             <li>
-                <button onclick=toggleSubMenu(this) class="dropdown-btn">
+                <button id="toggle-select-form">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M222-200 80-342l56-56 85 85 170-170 56 57-225 226Zm0-320L80-662l56-56 85 85 170-170 56 57-225 226Zm298 240v-80h360v80H520Zm0-320v-80h360v80H520Z"/></svg>
                     <span>SELECT</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"/></svg>
                 </button>
-                <ul class="sub-menu">
-                    <div>
-                        <div id="select"></div>
-
-                        <li>
-                            <button id="select-submit">
-                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M382-240 154-468l57-57 171 171 367-367 57 57-424 424Z"/></svg>
-                                <span>SUBMIT</span>
-                            </button>
-                        </li>
-                    </div>
-                </ul>
             </li>
             <li>
                 <button id="toggle-insert-form">
@@ -104,9 +91,12 @@ $options = [
         </ul>
     </nav>
     <main style="position: relative;">
-        <div id="container"></div>
-        <div id="insert-form-container" class="form-container" style="display: none;"></div> <!-- Hidden by default -->
-        <div id="edit-form-container" class="form-container" style="display: none;"></div> <!-- Edit form toggle -->
+        <div id="container">
+            Click on a TABLE to start.
+        </div>
+        <div id="select-form-container" class="form-container" style="display : none;"></div>
+        <div id="insert-form-container" class="form-container" style="display: none;"></div>
+        <div id="edit-form-container" class="form-container" style="display: none;"></div>
     </main>
     <script>
 let currentTable = '';
@@ -114,10 +104,15 @@ $(document).ready(function() {
     $('.table-link').on('click', function (e) {
         e.preventDefault();
         currentTable = $(this).data('table');
+        closeAllSubMenus()
         // Load and display table
         $.post('load_table.php', { table: currentTable }, function (response) {
             $('#container').html(response);
         });
+         $('#toggle-select-form').html(`
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M222-200 80-342l56-56 85 85 170-170 56 57-225 226Zm0-320L80-662l56-56 85 85 170-170 56 57-225 226Zm298 240v-80h360v80H520Zm0-320v-80h360v80H520Z"/></svg>
+        <span>SELECT ${currentTable}</span>
+        `);
         $('#toggle-insert-form').html(`
         <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
         <span>INSERT ${currentTable}</span>
@@ -142,7 +137,7 @@ $(document).ready(function() {
         const target = $(`#${formIdToShow}`);
         target.slideToggle(); // Toggle selected form
         }
-
+    $(document).on('click', '#toggle-select-form', () => toggleForm('select-form-container'));
     $(document).on('click', '#toggle-insert-form', () => toggleForm('insert-form-container'));
     $(document).on('click', '#toggle-edit-form', () => toggleForm('edit-form-container'));
     $(document).on('click', '#toggle-delete-form', () => toggleForm('delete-form-container'));
@@ -195,7 +190,7 @@ $(document).ready(function() {
             url: 'get_columns.php',
             data: { table: currentTable },
             success: function (response) {
-                $('#select').html(response); // Load checkboxes into select div
+                $('#select-form-container').html(response); // Load checkboxes into select div
             }
         });
     });
@@ -206,7 +201,8 @@ $(document).ready(function() {
     });
 
     // Handle submit
-    $('#select-submit').on('click', function () {
+    $(document).on('submit', '#select-form', function (e) {
+        e.preventDefault();
         let selected = [];
         $('input.column-checkbox:checked').each(function () {
             selected.push($(this).val());
