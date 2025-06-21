@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'], $_POST['pk_v
         $stmt = $pdo->prepare("DELETE FROM `$table` WHERE `$pk` = :pk_value");
         $stmt->execute(['pk_value' => $pk_value]);
 
-        echo "✅ Deleted row with $pk = $pk_value from $table.";
+        echo "Row deleted successfully.";
     } catch (PDOException $e) {
         echo "❌ DB Error: " . $e->getMessage();
     }
