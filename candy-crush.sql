@@ -39,8 +39,8 @@ CREATE TABLE friendships (
     player2_id INT NOT NULL,
     status ENUM('pending', 'accepted', 'blocked') DEFAULT 'accepted',
     friendship_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (player1_id) REFERENCES players(player_id),
-    FOREIGN KEY (player2_id) REFERENCES players(player_id),
+    FOREIGN KEY (player1_id) REFERENCES players(player_id) ON DELETE CASCADE,
+    FOREIGN KEY (player2_id) REFERENCES players(player_id) ON DELETE CASCADE,
     CHECK (player1_id < player2_id),
     UNIQUE (player1_id, player2_id)
 );
@@ -85,8 +85,8 @@ CREATE TABLE player_progress (
     times_completed INT DEFAULT 0,
     best_time INT,
     is_unlocked BOOLEAN DEFAULT FALSE,
-    FOREIGN KEY (player_id) REFERENCES players(player_id),
-    FOREIGN KEY (level_id) REFERENCES levels(level_id),
+    FOREIGN KEY (player_id) REFERENCES players(player_id) ON DELETE CASCADE,
+    FOREIGN KEY (level_id) REFERENCES levels(level_id) ON DELETE CASCADE,
     UNIQUE (player_id, level_id)
 );
 
@@ -139,8 +139,8 @@ CREATE TABLE inventory (
     item_id INT NOT NULL,
     quantity INT NOT NULL DEFAULT 1,
     last_updated DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (player_id) REFERENCES players(player_id),
-    FOREIGN KEY (item_id) REFERENCES items(item_id),
+    FOREIGN KEY (player_id) REFERENCES players(player_id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE,
     UNIQUE (player_id, item_id)
 );
 
@@ -193,8 +193,8 @@ CREATE TABLE transactions (
     transaction_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     status ENUM('pending', 'completed', 'failed', 'refunded') DEFAULT 'completed',
     receipt_number VARCHAR(50),
-    FOREIGN KEY (player_id) REFERENCES players(player_id),
-    FOREIGN KEY (item_id) REFERENCES items(item_id)
+    FOREIGN KEY (player_id) REFERENCES players(player_id) ON DELETE CASCADE,
+    FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE
 );
 
 -- Insert 5 transactions (1 per player)
@@ -217,9 +217,9 @@ CREATE TABLE game_sessions (
     stars_earned INT DEFAULT 0,
     item_used INT,
     result ENUM('win', 'lose', 'quit') NOT NULL,
-    FOREIGN KEY (player_id) REFERENCES players(player_id),
-    FOREIGN KEY (level_id) REFERENCES levels(level_id),
-    FOREIGN KEY (item_used) REFERENCES items(item_id)
+    FOREIGN KEY (player_id) REFERENCES players(player_id) ON DELETE CASCADE,
+    FOREIGN KEY (level_id) REFERENCES levels(level_id) ON DELETE CASCADE,
+    FOREIGN KEY (item_used) REFERENCES items(item_id) ON DELETE CASCADE
 );
 
 -- Player 1 Sessions (Level 1: 5 played, 3 completed)
@@ -423,7 +423,7 @@ CREATE TABLE leaderboards (
     start_date DATETIME,
     end_date DATETIME,
     is_active BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (level_id) REFERENCES levels(level_id)
+    FOREIGN KEY (level_id) REFERENCES levels(level_id) ON DELETE CASCADE
 );
 
 -- Insert 5 leaderboards
@@ -442,8 +442,8 @@ CREATE TABLE leaderboard_entries (
     score INT NOT NULL,
     rank INT,
     entry_date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (leaderboard_id) REFERENCES leaderboards(leaderboard_id),
-    FOREIGN KEY (player_id) REFERENCES players(player_id),
+    FOREIGN KEY (leaderboard_id) REFERENCES leaderboards(leaderboard_id) ON DELETE CASCADE,
+    FOREIGN KEY (player_id) REFERENCES players(player_id) ON DELETE CASCADE,
     UNIQUE (leaderboard_id, player_id)
 );
 

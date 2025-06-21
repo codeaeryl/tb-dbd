@@ -87,6 +87,13 @@ $options = [
                     <span>EDIT</span>
                 </button>
             </li>
+            <li>
+                <button id="toggle-delete-form">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-120q-33 0-56.5-23.5T200-200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33-23.5 56.5T680-120H280Zm400-600H280v520h400v-520ZM360-280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280-720v520-520Z"/></svg>
+                    <span>DELETE</span>
+                </button>
+
+            </li>
             <!--Toggle Mode-->
             <li>
                 <button onclick=toggleMode() id="toggle-mode-btn">
@@ -103,6 +110,16 @@ $options = [
         <div id="select-form-container" class="form-container" style="display : none;"></div>
         <div id="insert-form-container" class="form-container" style="display: none;"></div>
         <div id="edit-form-container" class="form-container" style="display: none;"></div>
+        <div id="delete-form-container" class="form-container" style="display: none;">
+            <form id="delete-form" method="POST">
+                <input type="hidden" name="table" id="delete-table">
+                <label for="delete-pk-select">Row ID to Delete:</label>
+                <select name="pk_value" id="delete-pk-select" required>
+                <option value="">-- Choose ID --</option>
+                </select>
+                <button type="submit">Delete</button>
+            </form>
+        </div>
     </main>
     <script>
 let currentTable = '';
@@ -142,7 +159,7 @@ $(document).ready(function() {
 
         const target = $(`#${formIdToShow}`);
         target.slideToggle(); // Toggle selected form
-        }
+    }
     $(document).on('click', '#toggle-select-form', () => toggleForm('select-form-container'));
     $(document).on('click', '#toggle-insert-form', () => toggleForm('insert-form-container'));
     $(document).on('click', '#toggle-edit-form', () => toggleForm('edit-form-container'));
@@ -255,7 +272,7 @@ $(document).ready(function() {
             }
         });
     });
-    $(document).on('input', '#primary-key', function () {
+    $(document).on('change', '#primary-key', function () {
         const pkField = $(this).data('field');
         const pkValue = $(this).val();
         const table = $('input[name="table"]').val();
@@ -283,6 +300,38 @@ $(document).ready(function() {
             } catch (e) {
                 console.error("Invalid JSON:", e);
             }
+        });
+    });
+    let primaryKeyCache = {}; // To avoid re-fetching PK multiple times
+
+    $('#toggle-delete-form').on('click', function () {
+        
+    $('#delete-table').val(currentTable); // ✅ SET table name
+
+    $.post('get_table_pks.php', { table: currentTable }, function (res) {
+        try {
+        const parsed = JSON.parse(res);
+        const $select = $('#delete-pk-select');
+        $select.empty().append(`<option value="">-- Choose ID --</option>`);
+        parsed.values.forEach(id => {
+            $select.append(`<option value="${id}">${id}</option>`);
+        });
+        } catch (e) {
+        alert('Error loading PK list.');
+        console.log('Raw:', res);
+        }
+    });
+
+    $('#delete-form').on('submit', function (e) {
+            e.preventDefault();
+            const formData = $(this).serialize();
+
+            console.log('Submitting:', formData); // ✅ MUST print correct values
+
+            $.post('delete_row.php', formData, function (response) {
+                alert(response);
+                $('.table-link[data-table="' + currentTable + '"]').click(); // reload table
+            });
         });
     });
 });
