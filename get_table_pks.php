@@ -1,4 +1,5 @@
 <?php
+// GET PKs for DELETE's DROPDOWN
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 

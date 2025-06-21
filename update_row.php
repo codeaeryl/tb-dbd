@@ -1,4 +1,5 @@
 <?php
+// UPDATE BACK END
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['table'])) {
     $table = preg_replace('/[^a-zA-Z0-9_]/', '', $_POST['table']);
     unset($_POST['table']);
